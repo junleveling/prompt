@@ -3,13 +3,34 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>多功能 Prompt 生成器</title>
+  <title>Prompt 生成器</title>
   <style>
-    body { font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; }
-    header { background-color: #26a862; color: white; padding: 15px; text-align: center; font-size: 20px; margin-bottom: 20px; }
-    label { font-weight: bold; display: block; margin-top: 10px; }
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 600px;
+      margin: auto;
+      padding: 20px;
+      padding-bottom: 80px; 
+    }
+    header {
+      background-color: #26a862;
+      color: white;
+      padding: 15px;
+      text-align: center;
+      font-size: 20px;
+      margin-bottom: 20px;
+    }
+    label {
+      font-weight: bold;
+      display: block;
+      margin-top: 10px;
+    }
     textarea, select, input {
-      width: 100%; padding: 8px; margin-top: 5px; border-radius: 5px; box-sizing: border-box;
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+      border-radius: 5px;
+      box-sizing: border-box;
     }
     input[type=number] {
       -moz-appearance: textfield;
@@ -20,14 +41,25 @@
       margin: 0;
     }
     button {
-      margin-top: 15px; padding: 10px 20px; background-color: #26a862; color: white; border: none;
-      cursor: pointer; border-radius: 5px; float: right;
+      margin-top: 15px;
+      padding: 10px 20px;
+      background-color: #26a862;
+      color: white;
+      border: none;
+      cursor: pointer;
+      border-radius: 5px;
+      float: right;
     }
-    button:hover { background-color: #1f8b52; }
+    button:hover {
+      background-color: #1f8b52;
+    }
     #output {
       clear: both;
-      margin-top: 20px; white-space: pre-line; padding: 10px;
-      background: #f4f4f4; border-radius: 5px;
+      margin-top: 20px;
+      white-space: pre-line;
+      padding: 10px;
+      background: #f4f4f4;
+      border-radius: 5px;
     }
   </style>
 </head>
@@ -45,7 +77,7 @@
 
   <!-- A 工具 -->
   <div id="toolA">
-    <h2>行銷文案 prompt</h2>
+    <h2>行銷文案靈感</h2>
     <label>內容主軸</label><textarea id="content" rows="2"></textarea>
     <label>主推金融產品</label><textarea id="product" rows="2"></textarea>
     <label>客群樣貌</label><textarea id="audience" rows="2"></textarea>
@@ -66,7 +98,7 @@
 
   <!-- B 工具 -->
   <div id="toolB" style="display: none;">
-    <h2>簡報大綱 prompt</h2>
+    <h2>簡報大綱</h2>
     <label>簡報背景</label><textarea id="b_background" rows="2"></textarea>
     <label>簡報對象</label><textarea id="b_target" rows="2"></textarea>
     <label>簡報希望達成的目的</label><textarea id="b_goal" rows="2"></textarea>
@@ -78,7 +110,7 @@
 
   <!-- C 工具 -->
   <div id="toolC" style="display: none;">
-    <h2>簡報內容 prompt</h2>
+    <h2>簡報內容</h2>
     <label>需要的內容（如標題、內文、逐字稿）</label><textarea id="c_needs" rows="2"></textarea>
     <label>背景資訊</label><textarea id="c_background" rows="2"></textarea>
     <label>內容限制（如字數）</label><textarea id="c_limit" rows="1"></textarea>
