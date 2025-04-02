@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>多功能 Prompt 生成器</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; }
+    header { background-color: #26a862; color: white; padding: 15px; text-align: center; font-size: 20px; margin-bottom: 20px; }
+    label { font-weight: bold; display: block; margin-top: 10px; }
+    textarea, select, input {
+      width: 100%; padding: 8px; margin-top: 5px; border-radius: 5px; box-sizing: border-box;
+    }
+    input[type=number] {
+      -moz-appearance: textfield;
+    }
+    input[type=number]::-webkit-outer-spin-button,
+    input[type=number]::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+    button {
+      margin-top: 15px; padding: 10px 20px; background-color: #26a862; color: white; border: none;
+      cursor: pointer; border-radius: 5px; float: right;
+    }
+    button:hover { background-color: #1f8b52; }
+    #output {
+      clear: both;
+      margin-top: 20px; white-space: pre-line; padding: 10px;
+      background: #f4f4f4; border-radius: 5px;
+    }
+  </style>
+</head>
+<body>
+
+  <header>Prompt 快速生成</header>
+
+  <h2>選擇目的</h2>
+  <select id="toolSelector" onchange="switchTool()">
+    <option value="A">行銷文案靈感</option>
+    <option value="B">簡報大綱</option>
+    <option value="C">簡報內容</option>
+    <option value="D">其他</option>
+  </select>
+
+  <!-- A 工具 -->
+  <div id="toolA">
+    <h2>行銷文案 prompt</h2>
+    <label>內容主軸</label><textarea id="content" rows="2"></textarea>
+    <label>主推金融產品</label><textarea id="product" rows="2"></textarea>
+    <label>客群樣貌</label><textarea id="audience" rows="2"></textarea>
+    <label>文案目標</label><textarea id="goal" rows="2"></textarea>
+    <label>文案風格 / 修辭</label><textarea id="tone" rows="2"></textarea>
+    <label>創意程度（temperature）</label><input type="number" id="temperature" min="0" max="10" step="0.1" />
+    <label>行銷力度</label>
+    <select id="marketingStrength">
+      <option value="保守">保守</option>
+      <option value="積極">積極</option>
+      <option value="強烈煽動">強烈煽動</option>
+    </select>
+    <label>文案限制</label><textarea id="limitations" rows="2"></textarea>
+    <label>輸出格式</label><textarea id="format" rows="2"></textarea>
+    <label>產出數量</label><textarea id="quantity" rows="1"></textarea>
+    <button onclick="generatePromptA()">生成 Prompt</button>
+  </div>
+
+  <!-- B 工具 -->
+  <div id="toolB" style="display: none;">
+    <h2>簡報大綱 prompt</h2>
+    <label>簡報背景</label><textarea id="b_background" rows="2"></textarea>
+    <label>簡報對象</label><textarea id="b_target" rows="2"></textarea>
+    <label>簡報希望達成的目的</label><textarea id="b_goal" rows="2"></textarea>
+    <label>簡報時長</label><textarea id="b_duration" rows="1"></textarea>
+    <label>重點資訊</label><textarea id="b_info" rows="2"></textarea>
+    <label>任務描述</label><textarea id="b_task" rows="2"></textarea>
+    <button onclick="generatePromptB()">生成 Prompt</button>
+  </div>
+
+  <!-- C 工具 -->
+  <div id="toolC" style="display: none;">
+    <h2>簡報內容 prompt</h2>
+    <label>需要的內容（如標題、內文、逐字稿）</label><textarea id="c_needs" rows="2"></textarea>
+    <label>背景資訊</label><textarea id="c_background" rows="2"></textarea>
+    <label>內容限制（如字數）</label><textarea id="c_limit" rows="1"></textarea>
+    <label>任務描述</label><textarea id="c_task" rows="2"></textarea>
+    <button onclick="generatePromptC()">生成 Prompt</button>
+  </div>
+
+  <!-- D 工具 -->
+  <div id="toolD" style="display: none;">
+    <h2>自訂任務</h2>
+    <label>希望 AI 扮演的角色</label><textarea id="d_role" rows="2"></textarea>
+    <label>背景資訊（遇到的問題／目前情境／已有資訊）</label><textarea id="d_background" rows="3"></textarea>
+    <label>任務說明</label><textarea id="d_task" rows="2"></textarea>
+    <label>定義目標或期待成果</label><textarea id="d_goal" rows="2"></textarea>
+    <label>產出格式</label><textarea id="d_format" rows="1"></textarea>
+    <label>限制</label><textarea id="d_limit" rows="1"></textarea>
+    <button onclick="generatePromptD()">生成 Prompt</button>
+  </div>
+
+  <!-- Output 區 -->
+  <h3>Prompt</h3>
+  <div id="output"></div>
+  <button id="copyButton">複製 Prompt</button>
+
+  <!-- Script -->
+  <script>
+    function switchTool() {
+      const tool = document.getElementById("toolSelector").value;
+      ["A", "B", "C", "D"].forEach(t => {
+        document.getElementById("tool" + t).style.display = (t === tool) ? "block" : "none";
+      });
+      document.getElementById("output").textContent = "";
+    }
+
+    function buildPrompt(title, fields) {
+      const result = fields.map(([label, id]) => {
+        const val = document.getElementById(id).value.trim();
+        return val ? `- ${label}${val}` : null;
+      }).filter(Boolean);
+      return result.length ? `${title}\n\n${result.join("\n")}` : "";
+    }
+
+    function generatePromptA() {
+      const output = buildPrompt("請根據以下資訊撰寫行銷文案：", [
+        ["內容主軸：", "content"],
+        ["主推金融產品", "product"],
+        ["客群樣貌：", "audience"],
+        ["文案目標：", "goal"],
+        ["文案風格 / 修辭：", "tone"],
+        ["temperature=", "temperature"],
+        ["行銷力度：", "marketingStrength"],
+        ["文案限制：", "limitations"],
+        ["輸出格式：", "format"],
+        ["產出數量：", "quantity"]
+      ]);
+      document.getElementById("output").textContent = output;
+    }
+
+    function generatePromptB() {
+      const output = buildPrompt("請根據以下資訊，產出簡報大綱", [
+        ["簡報背景：", "b_background"],
+        ["簡報對象：", "b_target"],
+        ["簡報希望達成的目的：", "b_goal"],
+        ["簡報時長：", "b_duration"],
+        ["重點資訊：", "b_info"],
+        ["任務描述：", "b_task"]
+      ]);
+      document.getElementById("output").textContent = output;
+    }
+
+    function generatePromptC() {
+      const output = buildPrompt("請根據以下資訊，產出簡報內容", [
+        ["需求項目（如標題、內文、逐字稿）：", "c_needs"],
+        ["背景資訊：", "c_background"],
+        ["內容限制（如字數、時長）：", "c_limit"],
+        ["任務描述：", "c_task"]
+      ]);
+      document.getElementById("output").textContent = output;
+    }
+
+    function generatePromptD() {
+      const output = buildPrompt("請根據以下資訊產出內容", [
+        ["你是：", "d_role"],
+        ["背景資訊：", "d_background"],
+        ["任務：", "d_task"],
+        ["目標：", "d_goal"],
+        ["產出格式：", "d_format"],
+        ["限制：", "d_limit"]
+      ]);
+      document.getElementById("output").textContent = output;
+    }
+
+    document.getElementById("copyButton").addEventListener("click", () => {
+      const output = document.getElementById("output").textContent;
+      if (!output) {
+        alert("沒有可複製的內容！");
+        return;
+      }
+      navigator.clipboard.writeText(output)
+        .then(() => alert("Prompt 已複製到剪貼簿！"))
+        .catch(err => {
+          alert("複製失敗，請手動複製。");
+          console.error("複製失敗", err);
+        });
+    });
+
+    // 初始狀態顯示 A 工具
+    switchTool();
+  </script>
+
+</body>
+</html>
